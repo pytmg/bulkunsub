@@ -8,6 +8,7 @@
 // @grant        none
 // @downloadURL  https://raw.githubusercontent.com/pytmg/bulkunsub/main/unsub.user.js
 // @updateURL    https://raw.githubusercontent.com/pytmg/bulkunsub/main/unsub.user.js
+// @license MIT
 // ==/UserScript==
 
 (function() {
