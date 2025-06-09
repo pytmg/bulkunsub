@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         YouTube Bulk Unsubber
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
-// @description  lowkey kinda fire tho fr
+// @version      1.1.0
+// @description  Added Whitelist/Delist Everyone buttons | cool thing
 // @author       tmg
 // @match        https://www.youtube.com/feed/channels
 // @grant        none
-// @downloadURL  https://raw.githubusercontent.com/pytmg/bulkunsub/main/unsub.user.js
-// @updateURL    https://raw.githubusercontent.com/pytmg/bulkunsub/main/unsub.user.js
 // @license MIT
+// @downloadURL https://update.greasyfork.org/scripts/538932/YouTube%20Bulk%20Unsubber.user.js
+// @updateURL https://update.greasyfork.org/scripts/538932/YouTube%20Bulk%20Unsubber.meta.js
 // ==/UserScript==
 
 (function() {
@@ -46,6 +46,17 @@
         let list = getWhitelist();
         list = list.filter(n => n !== name);
         saveWhitelist(list);
+    }
+
+    function updateWhitelistBtn(name, btn) {
+        const list = getWhitelist();
+        if (list.includes(name)) {
+            btn.textContent = 'Remove from Whitelist';
+            btn.style.backgroundColor = '#cc0000';
+        } else {
+            btn.textContent = 'Add to Whitelist';
+            btn.style.backgroundColor = '#232323';
+        }
     }
 
     // toggle whitelist membership
@@ -136,6 +147,86 @@
         }
         console.log('unsubscribe process done');
         return unsubbed;
+    }
+
+    function addWhiteListAllAndNonebtn() {
+        // <div id="header-container" class="style-scope ytd-section-list-renderer">
+        let header = document.querySelector("div#header-container");
+
+        let WhitelistAll = document.createElement("button");
+
+        WhitelistAll.className = 'dothething';
+        WhitelistAll.style.backgroundColor = "#454545";
+        WhitelistAll.textContent = "Whitelist Everyone";
+        WhitelistAll.style.position = 'relative';
+        WhitelistAll.style.marginLeft = '8px';
+        WhitelistAll.style.marginRight = '8px';
+        WhitelistAll.style.height = "35px";
+        WhitelistAll.style.padding = '8px';
+        WhitelistAll.style.fontSize = '15px';
+        WhitelistAll.style.cursor = 'pointer';
+        WhitelistAll.style.border = 'none';
+        WhitelistAll.style.borderRadius = '15px';
+        WhitelistAll.style.color = 'white';
+        WhitelistAll.style.fontWeight = 'bold';
+        WhitelistAll.style.userSelect = 'none';
+        WhitelistAll.title = 'Put everyone in the whitelist';
+        WhitelistAll.style.transition = "width 0.3s ease, background-color 0.3s ease";
+
+        let WhitelistNone = document.createElement("button");
+
+        WhitelistNone.className = 'dothething';
+        WhitelistNone.style.backgroundColor = "#232323";
+        WhitelistNone.textContent = "Delist Everyone";
+        WhitelistNone.style.position = 'relative';
+        WhitelistNone.style.marginLeft = '8px';
+        WhitelistNone.style.marginRight = '8px';
+        WhitelistNone.style.height = "35px";
+        WhitelistNone.style.padding = '8px';
+        WhitelistNone.style.fontSize = '15px';
+        WhitelistNone.style.cursor = 'pointer';
+        WhitelistNone.style.border = 'none';
+        WhitelistNone.style.borderRadius = '15px';
+        WhitelistNone.style.color = 'white';
+        WhitelistNone.style.fontWeight = 'bold';
+        WhitelistNone.style.userSelect = 'none';
+        WhitelistNone.title = 'Remove everyone from the whitelist';
+        WhitelistNone.style.transition = "width 0.3s ease, background-color 0.3s ease";
+
+        WhitelistAll.addEventListener("mousedown", () => {
+            let list = []; // clear EVERYTHING
+            saveWhitelist(list);
+
+            // -- Set everyone to yes save them NOW
+            const channelRows = document.querySelectorAll('ytd-channel-renderer');
+
+            channelRows.forEach(channel => {
+                const name = channel.querySelector('#channel-title, #text-container, a#main-link, a#channel-title').textContent.trim().split('\n')[0].trim();
+
+                const button = channel.querySelector(".whitelist-toggle-btn");
+
+                toggleWhitelist(name, button);
+            });
+        });
+
+        WhitelistNone.addEventListener("mousedown", () => {
+            let list = []; // clear EVERYTHING
+            saveWhitelist(list);
+
+            // -- Update the whitelist buttons
+            const channelRows = document.querySelectorAll('ytd-channel-renderer');
+
+            channelRows.forEach(channel => {
+                const name = channel.querySelector('#channel-title, #text-container, a#main-link, a#channel-title').textContent.trim().split('\n')[0].trim();
+
+                const button = channel.querySelector(".whitelist-toggle-btn");
+
+                updateWhitelistBtn(name, button);
+            });
+        });
+
+        header.appendChild(WhitelistAll);
+        header.appendChild(WhitelistNone);
     }
 
     // add whitelist toggle buttons next to channel names
@@ -252,6 +343,7 @@
     window.addEventListener('load', () => {
         setTimeout(() => {
             addWhitelistButtons();
+            addWhiteListAllAndNonebtn();
             createTriggerButton();
             setupObserver();
         }, 3000);
