@@ -122,6 +122,8 @@
 
                 console.log(`unsubscribing from: ${name}`);
 
+                unsubbed++;
+
                 unsubBtn.click();
 
                 await waitAndConfirmUnsubscribe();
